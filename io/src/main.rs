@@ -12,14 +12,14 @@ fn main() {
     let (x, y) = tokio::io::duplex(1024);
 
     thread::spawn(move || {
-        b(Box::new(y));
+        writer(Box::new(y));
     });
 
-    a(Box::new(x)).unwrap();
+    reader(Box::new(x)).unwrap();
 }
 
 #[tokio::main(flavor = "current_thread")]
-async fn a(mut stream: Box<dyn IO>) -> Result<(), Box<dyn Error>>{
+async fn reader(mut stream: Box<dyn IO>) -> Result<(), Box<dyn Error>>{
     let mut next_required = FRAME_LENGTH;
     let mut total_count = 0;
 
@@ -58,7 +58,7 @@ async fn a(mut stream: Box<dyn IO>) -> Result<(), Box<dyn Error>>{
 }
 
 #[tokio::main(flavor = "current_thread")]
-async fn b(mut stream: Box<dyn IO>) {
+async fn writer(mut stream: Box<dyn IO>) {
     let mut buffer = BytesMut::with_capacity(1024);
     let mut total_size = 0;
     for i in 0..100 {
